@@ -14,8 +14,8 @@ func NewAdminService(as models.AdminRepo) models.AdminService {
 	return &adminServ{adminRep: as}
 }
 
-func (s *adminServ) GetAllPendingClaims(ctx context.Context) ([]models.Claims, error) {
-	return s.adminRep.GetAllPendingClaims(ctx)
+func (s *adminServ) GetAllClaims(ctx context.Context) ([]models.Claims, error) {
+	return s.adminRep.GetAllClaims(ctx)
 }
 
 func (s *adminServ) GetClaimByID(ctx context.Context, claimID string) (*models.Claims, error) {

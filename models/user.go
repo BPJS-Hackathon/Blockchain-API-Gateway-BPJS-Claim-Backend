@@ -31,13 +31,13 @@ type Faskes struct {
 
 // ADMIN
 type AdminRepo interface {
-	GetAllPendingClaims(ctx context.Context) ([]Claims, error)
+	GetAllClaims(ctx context.Context) ([]Claims, error)
 	GetClaimByID(ctx context.Context, claimID string) (*Claims, error)
 	UpdateClaimStatus(ctx context.Context, claimID string, status string) error
 }
 
 type AdminService interface {
-	GetAllPendingClaims(ctx context.Context) ([]Claims, error)
+	GetAllClaims(ctx context.Context) ([]Claims, error)
 	GetClaimByID(ctx context.Context, claimID string) (*Claims, error)
 	UpdateClaimStatus(ctx context.Context, claimID string, status string) error
 }
@@ -61,13 +61,13 @@ type Faskes1Service interface {
 type Faskes2Repo interface {
 	GetAllMySubmittedRMandClaim(ctx context.Context, id string) (*[]RekamMedis, error)
 	GetAllDiagnosisCodes(ctx context.Context) ([]DiagnosisCode, error)
-	CreateRekamMedisandClaim(ctx context.Context, rm RekamMedis, cl Claims) (string, error)
+	CreateRekamMedisandClaim(ctx context.Context, rm RekamMedis, cl Claims) (string, string, error)
 	GetAllPesertaDependsOnFaskesHitter(ctx context.Context, id string) (*[]PesertaBPJS, error)
 }
 
 type Faskes2Service interface {
 	GetAllMySubmittedRMandClaim(ctx context.Context, id string) (*[]RekamMedis, error)
 	GetAllDiagnosisCodes(ctx context.Context) ([]DiagnosisCode, error)
-	CreateRekamMedisandClaim(ctx context.Context, rm RekamMedis, cl Claims) (string, error)
+	CreateRekamMedisandClaim(ctx context.Context, rm RekamMedis, cl Claims) (string, string, error)
 	GetAllPesertaDependsOnFaskesHitter(ctx context.Context, id string) (*[]PesertaBPJS, error)
 }

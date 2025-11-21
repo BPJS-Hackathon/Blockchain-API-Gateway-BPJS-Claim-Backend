@@ -16,11 +16,10 @@ func NewAdminRepo(db *gorm.DB) models.AdminRepo {
 	return &adminRepo{db: db}
 }
 
-func (r *adminRepo) GetAllPendingClaims(ctx context.Context) ([]models.Claims, error) {
+func (r *adminRepo) GetAllClaims(ctx context.Context) ([]models.Claims, error) {
 	var claims []models.Claims
 
 	err := r.db.WithContext(ctx).
-		Where("status = ?", "PENDING").
 		Preload("RekamMedis").             // Preload RekamMedis
 		Preload("RekamMedis.User").        // Preload User dari RekamMedis
 		Preload("RekamMedis.User.Faskes"). // Preload Faskes dari User
@@ -40,7 +39,7 @@ func (r *adminRepo) GetClaimByID(ctx context.Context, clID string) (*models.Clai
 	var claim models.Claims
 
 	err := r.db.WithContext(ctx).
-		Where("claim_id = ? AND status = ?", clID, "PENDING").
+		Where("claim_id = ?", clID).
 		Preload("RekamMedis").             // Preload RekamMedis
 		Preload("RekamMedis.User").        // Preload User dari RekamMedis
 		Preload("RekamMedis.User.Faskes"). // Preload Faskes dari User
@@ -76,11 +75,10 @@ func (r *adminRepo) UpdateClaimStatus(ctx context.Context, clID string, status s
 }
 
 // Optional: Method untuk mendapatkan claims dengan detail lengkap
-func (r *adminRepo) GetAllPendingClaimsWithFullDetails(ctx context.Context) ([]models.Claims, error) {
+func (r *adminRepo) GetAllClaimsWithFullDetails(ctx context.Context) ([]models.Claims, error) {
 	var claims []models.Claims
 
 	err := r.db.WithContext(ctx).
-		Where("status = ?", "PENDING").
 		Preload("RekamMedis", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("User").
 				Preload("User.Faskes").
@@ -119,24 +117,4 @@ func (r *adminRepo) GetClaimWithFullDetails(ctx context.Context, clID string) (*
 	}
 
 	return &claim, nil
-}
-
-// Method untuk mendapatkan semua claims (tanpa filter status)
-func (r *adminRepo) GetAllClaims(ctx context.Context) ([]models.Claims, error) {
-	var claims []models.Claims
-
-	err := r.db.WithContext(ctx).
-		Preload("RekamMedis").
-		Preload("RekamMedis.User").
-		Preload("RekamMedis.User.Faskes").
-		Preload("RekamMedis.Diagnosis").
-		Preload("RekamMedis.PesertaBPJS").
-		Order("created_at DESC").
-		Find(&claims).Error
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to get all claims: %v", err)
-	}
-
-	return claims, nil
 }

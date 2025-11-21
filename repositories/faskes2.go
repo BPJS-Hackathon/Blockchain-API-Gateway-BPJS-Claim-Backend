@@ -16,25 +16,25 @@ func NewFaskes2Repo(db *gorm.DB) models.Faskes2Repo {
 	return &faskes2Repository{db: db}
 }
 
-func (r *faskes2Repository) CreateRekamMedisandClaim(ctx context.Context, rm models.RekamMedis, cl models.Claims) (string, error) {
+func (r *faskes2Repository) CreateRekamMedisandClaim(ctx context.Context, rm models.RekamMedis, cl models.Claims) (string, string, error) {
 	tx := r.db.WithContext(ctx).Begin()
 	if err := tx.Create(&rm).Error; err != nil {
 		tx.Rollback()
-		return "", err
+		return "", "", err
 	}
 
 	cl.RekamMedisID = rm.ID
 	if err := tx.Create(&cl).Error; err != nil {
 		tx.Rollback()
-		return "", err
+		return "", "", err
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	// return created claim id and nil
-	return cl.ClaimID, nil
+	return cl.ClaimID, cl.RekamMedisID, nil
 }
 
 func (r *faskes2Repository) GetAllDiagnosisCodes(ctx context.Context) ([]models.DiagnosisCode, error) {

@@ -172,11 +172,9 @@ func (h *Faskes2Handler) CreateRekamMedisandClaim(c *gin.Context) {
 	req.RekamMedis.UserID = userHitterID.(string)
 
 	// Set claim status jika kosong
-	if req.Claims.Status == "" {
-		req.Claims.Status = models.ClaimStatusSubmitted // atau models.ClaimStatusSubmitted
-	}
+	req.Claims.Status = models.ClaimStatusSubmitted // atau models.ClaimStatusSubmitted
 
-	claimID, err := h.faskes2Service.CreateRekamMedisandClaim(c.Request.Context(), req.RekamMedis, req.Claims)
+	claimID, rmID, err := h.faskes2Service.CreateRekamMedisandClaim(c.Request.Context(), req.RekamMedis, req.Claims)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error":   err.Error(),
@@ -186,8 +184,9 @@ func (h *Faskes2Handler) CreateRekamMedisandClaim(c *gin.Context) {
 		return
 	}
 	c.JSON(201, gin.H{
-		"claim_id": claimID,
-		"success":  true,
-		"message":  "Creation Successful",
+		"claim_id":       claimID,
+		"rekam_medis_id": rmID,
+		"success":        true,
+		"message":        "Creation Successful",
 	})
 }

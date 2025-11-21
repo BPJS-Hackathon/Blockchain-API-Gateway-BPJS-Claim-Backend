@@ -33,7 +33,7 @@ func (r *claimsRepository) UpdateClaimStatus(ctx context.Context, claimID string
 
 	result := r.db.WithContext(ctx).
 		Model(&models.Claims{}).
-		Where("claim_id = ?", claimID).
+		Where("claim_id = ? AND status = ?", claimID, models.ClaimStatusSubmitted).
 		Update("status", status)
 
 	if result.Error != nil {
@@ -51,7 +51,7 @@ func (r *claimsRepository) GetClaimByID(ctx context.Context, claimID string) (*m
 	var claim models.Claims
 
 	err := r.db.WithContext(ctx).
-		Where("claim_id = ?", claimID).
+		Where("claim_id = ? AND status = ?", claimID, models.ClaimStatusSubmitted).
 		First(&claim).Error
 
 	if err != nil {

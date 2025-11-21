@@ -28,7 +28,7 @@ func NewAdminHandler(engine *gin.Engine, adminService models.AdminService, jwtMa
 func (ah *AdminHandler) GetAllPendingClaims(c *gin.Context) {
 	utils.PrintContextData(c)
 
-	claims, err := ah.adminServ.GetAllPendingClaims(c.Request.Context())
+	claims, err := ah.adminServ.GetAllClaims(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
