@@ -3,18 +3,12 @@ package domain
 import (
 	"context"
 
+	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/models"
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/utils"
 )
 
-type User struct {
-	ID           string
-	Username     string
-	PasswordHash string
-	Role         string
-}
-
 type AuthRepository interface {
-	FindByUsername(ctx context.Context, username string) (*User, error)
+	FindByUsername(ctx context.Context, username string) (*models.User, error)
 }
 
 type AuthService interface {

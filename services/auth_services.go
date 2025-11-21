@@ -31,7 +31,7 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (str
 	if bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil {
 		return "", errors.New("invalid username or password")
 	}
-	token, err := s.JWT.GenerateToken(user.ID, user.Role, user.Username)
+	token, err := s.JWT.GenerateToken(user.ID, user.Name, user.Username, user.Role)
 	if err != nil {
 		return "", err
 	}

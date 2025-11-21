@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"context"
+
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/models"
 	"gorm.io/gorm"
 )
@@ -13,8 +15,8 @@ func NewFaskes2Repo(db *gorm.DB) models.Faskes2Repo {
 	return &faskes2Repository{db: db}
 }
 
-func (r *faskes2Repository) CreateRekamMedisandClaim(rm models.RekamMedis, cl models.Claims) (string, error) {
-	tx := r.db.Begin()
+func (r *faskes2Repository) CreateRekamMedisandClaim(ctx context.Context, rm models.RekamMedis, cl models.Claims) (string, error) {
+	tx := r.db.WithContext(ctx).Begin()
 	if err := tx.Create(&rm).Error; err != nil {
 		tx.Rollback()
 		return "", err
@@ -34,9 +36,9 @@ func (r *faskes2Repository) CreateRekamMedisandClaim(rm models.RekamMedis, cl mo
 	return cl.ClaimID, nil
 }
 
-func (r *faskes2Repository) GetAllDiagnosisCodes() ([]models.DiagnosisCode, error) {
+func (r *faskes2Repository) GetAllDiagnosisCodes(ctx context.Context) ([]models.DiagnosisCode, error) {
 	var diagnosisCodes []models.DiagnosisCode
-	if err := r.db.Find(&diagnosisCodes).Error; err != nil {
+	if err := r.db.WithContext(ctx).Find(&diagnosisCodes).Error; err != nil {
 		return nil, err
 	}
 	return diagnosisCodes, nil

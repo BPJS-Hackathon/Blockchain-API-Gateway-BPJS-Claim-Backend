@@ -20,20 +20,23 @@ func NewJWTManager(secretKey string, duration time.Duration) *JWTManager {
 	}
 }
 
-func (j *JWTManager) GenerateToken(userUUID, role, name string) (string, error) {
+// GenerateToken sekarang menerima username juga
+func (j *JWTManager) GenerateToken(userUUID, name, username, role string) (string, error) {
 	claims := jwt.MapClaims{
-		"sub":  userUUID,
-		"role": role,
-		"exp":  time.Now().Add(j.tokenDuration).Unix(),
-		"iat":  time.Now().Unix(),
+		"sub":      userUUID,
+		"username": username,
+		"name":     name,
+		"role":     role,
+		"exp":      time.Now().Add(j.tokenDuration).Unix(),
+		"iat":      time.Now().Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(j.secretKey)
 }
 
-// VerifyToken memverifikasi token dan mengembalikan UUID + Role
-func (j *JWTManager) VerifyToken(tokenStr string) (string, string, error) {
+// VerifyToken sekarang mengembalikan username juga
+func (j *JWTManager) VerifyToken(tokenStr string) (string, string, string, string, error) {
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -42,14 +45,16 @@ func (j *JWTManager) VerifyToken(tokenStr string) (string, string, error) {
 	})
 
 	if err != nil {
-		return "", "", err
+		return "", "", "", "", err
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		userUUID, _ := claims["sub"].(string)
+		username, _ := claims["username"].(string) // Extract username
 		role, _ := claims["role"].(string)
-		return userUUID, role, nil
+		name, _ := claims["name"].(string)
+		return userUUID, name, username, role, nil
 	}
 
-	return "", "", errors.New("invalid token claims")
+	return "", "", "", "", errors.New("invalid token claims")
 }

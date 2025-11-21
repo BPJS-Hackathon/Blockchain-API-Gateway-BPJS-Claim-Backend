@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 const (
 	ClaimStatusSubmitted = "SUBMITTED" // Status awal, dilakukan bersamaan saat RS / faskes yang merawat mensubmit Rekam Medis
 	ClaimStatusPending   = "PENDING"   // Claim masuk ke blockchain, smart contract memverifikasi apakah claim fiktif / ngga. Node BPJS trigger update db jika menemukan ada tx claim di block.
@@ -9,8 +11,10 @@ const (
 )
 
 type Claims struct {
-	ClaimID      string `gorm:"primaryKey;type:uuid" json:"claim_id"`
-	RekamMedisID string `gorm:"type:uuid;not null" json:"rekam_medis_id"`
-	Amount       uint   `gorm:"not null" json:"amount"`
-	Status       string `gorm:"type:varchar(20);not null" json:"status"`
+	ClaimID      string    `gorm:"primaryKey;type:uuid;default:gen_random_uuid()" json:"claim_id"`
+	RekamMedisID string    `gorm:"type:uuid;not null" json:"rekam_medis_id"`
+	Amount       uint      `gorm:"not null" json:"amount"`
+	Status       string    `gorm:"type:varchar(20);not null" json:"status"`
+	CreatedAt    time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt    time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 }

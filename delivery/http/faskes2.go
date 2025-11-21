@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/config"
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/models"
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/utils"
@@ -24,7 +26,7 @@ func (h *Faskes2Handler) GetAllDiagnosisCodes(c *gin.Context) {
 	infoHitter, _ := c.Get("username")
 	println("Accessed by Faskes2 user:", infoHitter)
 
-	diagnosisCodes, err := h.faskes2Service.GetAllDiagnosisCodes()
+	diagnosisCodes, err := h.faskes2Service.GetAllDiagnosisCodes(c.Request.Context())
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error":   "internal server error",
@@ -41,6 +43,16 @@ func (h *Faskes2Handler) GetAllDiagnosisCodes(c *gin.Context) {
 }
 
 func (h *Faskes2Handler) CreateRekamMedisandClaim(c *gin.Context) {
+	hitteruuid, isVool := c.Get("userUUID")
+	if !isVool {
+		c.JSON(403, gin.H{
+			"error":   "Unauthorized",
+			"success": false,
+			"message": "Creation Failed",
+		})
+		return
+	}
+	fmt.Println(hitteruuid)
 	var req struct {
 		RekamMedis models.RekamMedis `json:"rekam_medis"`
 		Claims     models.Claims     `json:"claims"`
@@ -53,10 +65,11 @@ func (h *Faskes2Handler) CreateRekamMedisandClaim(c *gin.Context) {
 		})
 		return
 	}
-	claimID, err := h.faskes2Service.CreateRekamMedisandClaim(req.RekamMedis, req.Claims)
+	req.Claims.Status = models.ClaimStatusSubmitted
+	claimID, err := h.faskes2Service.CreateRekamMedisandClaim(c.Request.Context(), req.RekamMedis, req.Claims)
 	if err != nil {
 		c.JSON(500, gin.H{
-			"error":   "internal server error",
+			"error":   err.Error(),
 			"success": false,
 			"message": "Creation Failed",
 		})

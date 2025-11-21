@@ -302,6 +302,7 @@ func seedAdminUser() error {
 		adminHashed, _ := bcrypt.GenerateFromPassword([]byte(adminPass), bcrypt.DefaultCost)
 
 		adminUser := models.User{
+			Name:         "Admin",
 			Username:     getEnvOrDefault("ADMIN_USERNAME", "admin"),
 			PasswordHash: string(adminHashed),
 			Role:         models.RoleAdmin,
@@ -347,12 +348,14 @@ func seedFaskesUsers() error {
 		faskes2Hashed, _ := bcrypt.GenerateFromPassword([]byte(getEnvOrDefault("FASKES2PASS", "faskes123")), bcrypt.DefaultCost)
 
 		user1 := models.User{
+			Name:         "Tom",
 			Username:     getEnvOrDefault("FASKES1", "faskes1"),
 			PasswordHash: string(faskes1Hashed),
 			Role:         models.RoleFaskes,
 			FaskesID:     &faskes1.ID, // Gunakan ID yang sudah di-generate
 		}
 		user2 := models.User{
+			Name:         "Brady",
 			Username:     getEnvOrDefault("FASKES2", "faskes2"),
 			PasswordHash: string(faskes2Hashed),
 			Role:         models.RoleFaskes,
