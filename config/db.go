@@ -59,6 +59,9 @@ func BootDB() (*gorm.DB, error) {
 	if err := seedAdminUser(); err != nil {
 		return nil, err
 	}
+	if err := seedAuditorUsers(); err != nil {
+		return nil, err
+	}
 	if err := seedFaskesUsers(); err != nil {
 		return nil, err
 	}
@@ -345,6 +348,28 @@ func seedAdminUser() error {
 		}
 		DB.Create(&adminUser)
 		log.Println("✅ Admin user seeded")
+	}
+	return nil
+}
+
+func seedAuditorUsers() error {
+	var count int64
+	DB.Model(&models.User{}).Where("role = ?", models.RoleAuditor).Count(&count)
+	if count == 0 {
+		adminPass := os.Getenv("AUDITOR_PASSWORD")
+		if adminPass == "" {
+			adminPass = "auditor123"
+		}
+		adminHashed, _ := bcrypt.GenerateFromPassword([]byte(adminPass), bcrypt.DefaultCost)
+
+		adminUser := models.User{
+			Name:         "Tom Brady The Auditor",
+			Username:     getEnvOrDefault("AUDITOR_USERNAME", "auditor"),
+			PasswordHash: string(adminHashed),
+			Role:         models.RoleAuditor,
+		}
+		DB.Create(&adminUser)
+		log.Println("✅ Auditor user seeded")
 	}
 	return nil
 }

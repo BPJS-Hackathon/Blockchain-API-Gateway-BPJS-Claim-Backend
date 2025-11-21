@@ -191,6 +191,29 @@ func AdminOnly() gin.HandlerFunc {
 			})
 		}
 
+		c.Abort()
+	}
+}
+
+func AdminAndAuditorOnly() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, exists := c.Get("role")
+		if !exists {
+			c.JSON(http.StatusForbidden, gin.H{
+				"success": false,
+				"message": "Username not found in token",
+			})
+			c.Abort()
+			return
+		}
+
+		if role != "admin" && role != "auditor" {
+			c.JSON(http.StatusForbidden, gin.H{
+				"success": false,
+				"message": "Access restricted to Admin and Auditor pusers only",
+			})
+		}
+
 		c.Next()
 	}
 }

@@ -18,11 +18,13 @@ func NewAdminHandler(engine *gin.Engine, adminService models.AdminService, jwtMa
 
 	// Admin routes dengan auth middleware
 	adminGroup := engine.Group("/admin")
-	adminGroup.Use(config.AuthMiddleware(jwtManager), config.AdminOnly())
+	adminGroup.Use(config.AuthMiddleware(jwtManager), config.AdminAndAuditorOnly())
 
 	adminGroup.GET("/claims", handler.GetAllPendingClaims)
 	adminGroup.GET("/claims/:id", handler.GetClaimByID)
-	adminGroup.PUT("/claims/:id/status", handler.UpdateClaimStatus)
+
+	// Override the group middleware for this specific route to be AdminOnly
+	adminGroup.PUT("/claims/:id/status", config.AdminOnly(), handler.UpdateClaimStatus)
 }
 
 func (ah *AdminHandler) GetAllPendingClaims(c *gin.Context) {
