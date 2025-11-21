@@ -11,10 +11,11 @@ const (
 )
 
 type Claims struct {
-	ClaimID      string    `gorm:"primaryKey;type:uuid;default:gen_random_uuid()" json:"claim_id"`
-	RekamMedisID string    `gorm:"type:uuid;not null" json:"rekam_medis_id"`
-	Amount       uint      `gorm:"not null" json:"amount"`
-	Status       string    `gorm:"type:varchar(20);not null" json:"status"`
-	CreatedAt    time.Time `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt    time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	ClaimID      string     `gorm:"primaryKey;type:uuid;default:gen_random_uuid()" json:"claim_id"`
+	RekamMedisID string     `gorm:"type:uuid;not null" json:"rekam_medis_id"`
+	Amount       uint       `gorm:"not null" json:"amount"`
+	Status       string     `gorm:"type:varchar(20);not null" json:"status"`
+	CreatedAt    time.Time  `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt    time.Time  `gorm:"autoUpdateTime" json:"updated_at"`
+	RekamMedis   RekamMedis `gorm:"foreignKey:RekamMedisID;references:ID" json:"rekam_medis"`
 }

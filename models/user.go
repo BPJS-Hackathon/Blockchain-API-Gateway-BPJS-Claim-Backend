@@ -55,9 +55,11 @@ type Faskes1Service interface {
 type Faskes2Repo interface {
 	GetAllDiagnosisCodes(ctx context.Context) ([]DiagnosisCode, error)
 	CreateRekamMedisandClaim(ctx context.Context, rm RekamMedis, cl Claims) (string, error)
+	// GetAllPesertaDependsOnFaskesHitter(ctx context.Context) (PesertaBPJS, error)
 }
 
 type Faskes2Service interface {
 	GetAllDiagnosisCodes(ctx context.Context) ([]DiagnosisCode, error)
 	CreateRekamMedisandClaim(ctx context.Context, rm RekamMedis, cl Claims) (string, error)
+	// GetAllPesertaDependsOnFaskesHitter(ctx context.Context) (PesertaBPJS, error)
 }

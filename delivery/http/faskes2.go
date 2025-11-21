@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/config"
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/models"
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/utils"
@@ -43,16 +41,18 @@ func (h *Faskes2Handler) GetAllDiagnosisCodes(c *gin.Context) {
 }
 
 func (h *Faskes2Handler) CreateRekamMedisandClaim(c *gin.Context) {
-	hitteruuid, isVool := c.Get("userUUID")
+	utils.PrintContextData(c)
+
+	userHitterID, isVool := c.Get("userID")
 	if !isVool {
-		c.JSON(403, gin.H{
-			"error":   "Unauthorized",
+		c.JSON(500, gin.H{
+			"error":   "Unathorized",
 			"success": false,
 			"message": "Creation Failed",
 		})
 		return
 	}
-	fmt.Println(hitteruuid)
+
 	var req struct {
 		RekamMedis models.RekamMedis `json:"rekam_medis"`
 		Claims     models.Claims     `json:"claims"`
@@ -65,6 +65,8 @@ func (h *Faskes2Handler) CreateRekamMedisandClaim(c *gin.Context) {
 		})
 		return
 	}
+
+	req.RekamMedis.UserID = userHitterID.(string)
 	req.Claims.Status = models.ClaimStatusSubmitted
 	claimID, err := h.faskes2Service.CreateRekamMedisandClaim(c.Request.Context(), req.RekamMedis, req.Claims)
 	if err != nil {

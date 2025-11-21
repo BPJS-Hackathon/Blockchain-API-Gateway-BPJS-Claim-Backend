@@ -138,3 +138,59 @@ func Faskes2Only() gin.HandlerFunc {
 		c.Abort()
 	}
 }
+
+func Faskes1Only() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		username, exists := c.Get("username")
+		if !exists {
+			c.JSON(http.StatusForbidden, gin.H{
+				"success": false,
+				"message": "Username not found in token",
+			})
+			c.Abort()
+			return
+		}
+
+		// Check semua kemungkinan username untuk faskes2
+		possibleFaskes2Names := []string{"faskes1", "FASKES1", "faskes 1", "Faskes1"}
+		usernameStr := username.(string)
+
+		for _, name := range possibleFaskes2Names {
+			if usernameStr == name {
+				fmt.Printf("Match found with: %s\n", name)
+				c.Next()
+				return
+			}
+		}
+
+		fmt.Printf("No match found. User '%s' is not Faskes1\n", usernameStr)
+		c.JSON(http.StatusForbidden, gin.H{
+			"success": false,
+			"message": "Access restricted to Faskes1 users only. Current user: " + usernameStr,
+		})
+		c.Abort()
+	}
+}
+
+func AdminOnly() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, exists := c.Get("role")
+		if !exists {
+			c.JSON(http.StatusForbidden, gin.H{
+				"success": false,
+				"message": "Username not found in token",
+			})
+			c.Abort()
+			return
+		}
+
+		if role != "admin" {
+			c.JSON(http.StatusForbidden, gin.H{
+				"success": false,
+				"message": "Access restricted to Admin users only",
+			})
+		}
+
+		c.Next()
+	}
+}

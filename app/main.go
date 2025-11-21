@@ -33,10 +33,12 @@ func main() {
 	// init repo
 	authRepo := repositories.NewAuthRepo(db)
 	faskes2repo := repositories.NewFaskes2Repo(db)
+	adminRep := repositories.NewAdminRepo(db)
 
 	// init services
 	authService := services.NewAuthService(authRepo, jwtSecret)
 	faskes2Service := services.NewFaskes2Service(faskes2repo)
+	adminService := services.NewAdminService(adminRep)
 
 	// init gin
 	app := gin.Default()
@@ -45,6 +47,7 @@ func main() {
 	// init handlers
 	handlers.NewAuthHandler(app, *authService)
 	handlers.NewFaskes2Handler(app, faskes2Service, authService.GetAccessTokenManager())
+	handlers.NewAdminHandler(app, adminService, authService.GetAccessTokenManager())
 
 	// Start server
 	port := os.Getenv("APP_PORT")
