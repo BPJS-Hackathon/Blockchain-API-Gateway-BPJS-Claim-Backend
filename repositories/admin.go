@@ -25,6 +25,7 @@ func (r *adminRepo) GetAllPendingClaims(ctx context.Context) ([]models.Claims, e
 		Preload("RekamMedis.User").        // Preload User dari RekamMedis
 		Preload("RekamMedis.User.Faskes"). // Preload Faskes dari User
 		Preload("RekamMedis.Diagnosis").   // Preload Diagnosis dari RekamMedis
+		Preload("RekamMedis.PesertaBPJS"). // Preload PesertaBPJS dari RekamMedis
 		Order("created_at DESC").
 		Find(&claims).Error
 
@@ -44,6 +45,7 @@ func (r *adminRepo) GetClaimByID(ctx context.Context, clID string) (*models.Clai
 		Preload("RekamMedis.User").        // Preload User dari RekamMedis
 		Preload("RekamMedis.User.Faskes"). // Preload Faskes dari User
 		Preload("RekamMedis.Diagnosis").   // Preload Diagnosis dari RekamMedis
+		Preload("RekamMedis.PesertaBPJS"). // Preload PesertaBPJS dari RekamMedis
 		First(&claim).Error
 
 	if err != nil {
@@ -80,7 +82,10 @@ func (r *adminRepo) GetAllPendingClaimsWithFullDetails(ctx context.Context) ([]m
 	err := r.db.WithContext(ctx).
 		Where("status = ?", "PENDING").
 		Preload("RekamMedis", func(db *gorm.DB) *gorm.DB {
-			return db.Preload("User").Preload("User.Faskes").Preload("Diagnosis")
+			return db.Preload("User").
+				Preload("User.Faskes").
+				Preload("Diagnosis").
+				Preload("PesertaBPJS")
 		}).
 		Order("created_at DESC").
 		Find(&claims).Error
@@ -99,7 +104,10 @@ func (r *adminRepo) GetClaimWithFullDetails(ctx context.Context, clID string) (*
 	err := r.db.WithContext(ctx).
 		Where("claim_id = ?", clID).
 		Preload("RekamMedis", func(db *gorm.DB) *gorm.DB {
-			return db.Preload("User").Preload("User.Faskes").Preload("Diagnosis")
+			return db.Preload("User").
+				Preload("User.Faskes").
+				Preload("Diagnosis").
+				Preload("PesertaBPJS")
 		}).
 		First(&claim).Error
 
@@ -111,4 +119,24 @@ func (r *adminRepo) GetClaimWithFullDetails(ctx context.Context, clID string) (*
 	}
 
 	return &claim, nil
+}
+
+// Method untuk mendapatkan semua claims (tanpa filter status)
+func (r *adminRepo) GetAllClaims(ctx context.Context) ([]models.Claims, error) {
+	var claims []models.Claims
+
+	err := r.db.WithContext(ctx).
+		Preload("RekamMedis").
+		Preload("RekamMedis.User").
+		Preload("RekamMedis.User.Faskes").
+		Preload("RekamMedis.Diagnosis").
+		Preload("RekamMedis.PesertaBPJS").
+		Order("created_at DESC").
+		Find(&claims).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get all claims: %v", err)
+	}
+
+	return claims, nil
 }

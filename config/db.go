@@ -104,6 +104,7 @@ func seedDiagnosisCodesFromJSON() error {
 }
 
 // Seed PesertaBPJS data dengan looping
+// config/database.go - update seedPesertaBPJS function
 func seedPesertaBPJS() error {
 	var count int64
 	DB.Model(&models.PesertaBPJS{}).Count(&count)
@@ -112,174 +113,207 @@ func seedPesertaBPJS() error {
 		return nil
 	}
 
-	// Data base untuk generate peserta
-	families := []struct {
-		familyID string
-		members  []struct {
-			gender     int
-			birthYear  int
-			birthMonth time.Month
-			birthDay   int
-			relation   int
-			marital    int
-		}
-		province   string
-		city       string
-		faskes     string
-		faskesType int
-		class      string
-		segment    int
-		bobot      float64
-	}{
-		// Keluarga 1 - Jakarta
+	// Dapatkan ID faskes dari database
+	var faskes1 models.Faskes
+	var faskes2 models.Faskes
+
+	if err := DB.Where("nama_faskes = ?", getEnvOrDefault("FASKES1NAME", "Faskes Pertama")).First(&faskes1).Error; err != nil {
+		return fmt.Errorf("failed to find faskes1: %v", err)
+	}
+	if err := DB.Where("nama_faskes = ?", getEnvOrDefault("FASKES2NAME", "Faskes Kedua")).First(&faskes2).Error; err != nil {
+		return fmt.Errorf("failed to find faskes2: %v", err)
+	}
+
+	// Data peserta untuk Faskes 1 (Puskesmas)
+	pesertaFaskes1 := []models.PesertaBPJS{
 		{
-			familyID: "FAM001",
-			members: []struct {
-				gender     int
-				birthYear  int
-				birthMonth time.Month
-				birthDay   int
-				relation   int
-				marital    int
-			}{
-				{1, 1985, 3, 15, 1, 2},  // Kepala keluarga (laki-laki, menikah)
-				{2, 1987, 8, 20, 2, 2},  // Istri
-				{1, 2015, 11, 10, 4, 1}, // Anak laki-laki
-			},
-			province:   "31",
-			city:       "3171",
-			faskes:     "Puskesmas Jakarta Selatan",
-			faskesType: 1,
-			class:      "III",
-			segment:    2,
-			bobot:      1.0000,
+			PSTV01: "0001234567890",
+			PSTV02: "FAM001",
+			PSTV03: time.Date(1985, 3, 15, 0, 0, 0, 0, time.UTC),
+			PSTV04: 1,
+			PSTV05: 1,
+			PSTV06: 2,
+			PSTV07: "III",
+			PSTV08: 2,
+			PSTV09: "31",
+			PSTV10: "3171",
+			PSTV11: faskes1.NamaFaskes, // "Faskes Pertama"
+			PSTV12: 1,                  // Puskesmas
+			PSTV13: "31",
+			PSTV14: "3171",
+			PSTV15: 1.0000,
+			PSTV16: 2024,
+			PSTV17: "Aktif",
+			PSTV18: nil,
 		},
-		// Keluarga 2 - Bandung
 		{
-			familyID: "FAM002",
-			members: []struct {
-				gender     int
-				birthYear  int
-				birthMonth time.Month
-				birthDay   int
-				relation   int
-				marital    int
-			}{
-				{1, 1978, 12, 5, 1, 2},
-				{2, 1980, 4, 18, 2, 2},
-			},
-			province:   "32",
-			city:       "3273",
-			faskes:     "Klinik Bandung",
-			faskesType: 2,
-			class:      "II",
-			segment:    1,
-			bobot:      1.2500,
+			PSTV01: "0001234567891",
+			PSTV02: "FAM001",
+			PSTV03: time.Date(1987, 8, 20, 0, 0, 0, 0, time.UTC),
+			PSTV04: 2,
+			PSTV05: 2,
+			PSTV06: 2,
+			PSTV07: "III",
+			PSTV08: 2,
+			PSTV09: "31",
+			PSTV10: "3171",
+			PSTV11: faskes1.NamaFaskes, // "Faskes Pertama"
+			PSTV12: 1,                  // Puskesmas
+			PSTV13: "31",
+			PSTV14: "3171",
+			PSTV15: 1.0000,
+			PSTV16: 2024,
+			PSTV17: "Aktif",
+			PSTV18: nil,
 		},
-		// Keluarga 3 - Solo (single)
 		{
-			familyID: "FAM003",
-			members: []struct {
-				gender     int
-				birthYear  int
-				birthMonth time.Month
-				birthDay   int
-				relation   int
-				marital    int
-			}{
-				{1, 1992, 7, 30, 1, 1},
-			},
-			province:   "33",
-			city:       "3372",
-			faskes:     "RSUD Solo",
-			faskesType: 3,
-			class:      "I",
-			segment:    1,
-			bobot:      1.5000,
+			PSTV01: "0001234567892",
+			PSTV02: "FAM001",
+			PSTV03: time.Date(2015, 11, 10, 0, 0, 0, 0, time.UTC),
+			PSTV04: 4,
+			PSTV05: 1,
+			PSTV06: 1,
+			PSTV07: "III",
+			PSTV08: 2,
+			PSTV09: "31",
+			PSTV10: "3171",
+			PSTV11: faskes1.NamaFaskes, // "Faskes Pertama"
+			PSTV12: 1,                  // Puskesmas
+			PSTV13: "31",
+			PSTV14: "3171",
+			PSTV15: 0.7500,
+			PSTV16: 2024,
+			PSTV17: "Aktif",
+			PSTV18: nil,
 		},
-		// Keluarga 4 - Yogyakarta (single parent)
 		{
-			familyID: "FAM004",
-			members: []struct {
-				gender     int
-				birthYear  int
-				birthMonth time.Month
-				birthDay   int
-				relation   int
-				marital    int
-			}{
-				{2, 1965, 1, 25, 1, 3},
-			},
-			province:   "34",
-			city:       "3471",
-			faskes:     "Puskesmas Yogyakarta",
-			faskesType: 1,
-			class:      "III",
-			segment:    3,
-			bobot:      1.0000,
-		},
-		// Keluarga 5 - Surabaya
-		{
-			familyID: "FAM005",
-			members: []struct {
-				gender     int
-				birthYear  int
-				birthMonth time.Month
-				birthDay   int
-				relation   int
-				marital    int
-			}{
-				{1, 1972, 9, 14, 1, 2},
-				{2, 1975, 6, 8, 2, 2},
-				{2, 2010, 2, 28, 4, 1}, // Anak perempuan
-			},
-			province:   "35",
-			city:       "3578",
-			faskes:     "RS Surabaya",
-			faskesType: 3,
-			class:      "II",
-			segment:    1,
-			bobot:      1.2500,
+			PSTV01: "0001234567896",
+			PSTV02: "FAM004",
+			PSTV03: time.Date(1965, 1, 25, 0, 0, 0, 0, time.UTC),
+			PSTV04: 1,
+			PSTV05: 2,
+			PSTV06: 3,
+			PSTV07: "III",
+			PSTV08: 3,
+			PSTV09: "34",
+			PSTV10: "3471",
+			PSTV11: faskes1.NamaFaskes, // "Faskes Pertama"
+			PSTV12: 1,                  // Puskesmas
+			PSTV13: "34",
+			PSTV14: "3471",
+			PSTV15: 1.0000,
+			PSTV16: 2024,
+			PSTV17: "Aktif",
+			PSTV18: nil,
 		},
 	}
 
-	// Generate peserta berdasarkan families
-	pesertaNumber := 890
-	var allPeserta []models.PesertaBPJS
-
-	for _, family := range families {
-		for _, member := range family.members {
-			pesertaNumber++
-
-			// Adjust bobot untuk anak
-			bobot := family.bobot
-			if member.relation == 4 { // Anak
-				bobot = 0.7500
-			}
-
-			peserta := models.PesertaBPJS{
-				PSTV01: fmt.Sprintf("0001234567%d", pesertaNumber),
-				PSTV02: family.familyID,
-				PSTV03: time.Date(member.birthYear, member.birthMonth, member.birthDay, 0, 0, 0, 0, time.UTC),
-				PSTV04: member.relation,
-				PSTV05: member.gender,
-				PSTV06: member.marital,
-				PSTV07: family.class,
-				PSTV08: family.segment,
-				PSTV09: family.province,
-				PSTV10: family.city,
-				PSTV11: family.faskes,
-				PSTV12: family.faskesType,
-				PSTV13: family.province,
-				PSTV14: family.city,
-				PSTV15: bobot,
-				PSTV16: 2024,
-				PSTV17: "Aktif",
-				PSTV18: nil,
-			}
-			allPeserta = append(allPeserta, peserta)
-		}
+	// Data peserta untuk Faskes 2 (Klinik)
+	pesertaFaskes2 := []models.PesertaBPJS{
+		{
+			PSTV01: "0001234567893",
+			PSTV02: "FAM002",
+			PSTV03: time.Date(1978, 12, 5, 0, 0, 0, 0, time.UTC),
+			PSTV04: 1,
+			PSTV05: 1,
+			PSTV06: 2,
+			PSTV07: "II",
+			PSTV08: 1,
+			PSTV09: "32",
+			PSTV10: "3273",
+			PSTV11: faskes2.NamaFaskes, // "Faskes Kedua"
+			PSTV12: 2,                  // Klinik
+			PSTV13: "32",
+			PSTV14: "3273",
+			PSTV15: 1.2500,
+			PSTV16: 2024,
+			PSTV17: "Aktif",
+			PSTV18: nil,
+		},
+		{
+			PSTV01: "0001234567894",
+			PSTV02: "FAM002",
+			PSTV03: time.Date(1980, 4, 18, 0, 0, 0, 0, time.UTC),
+			PSTV04: 2,
+			PSTV05: 2,
+			PSTV06: 2,
+			PSTV07: "II",
+			PSTV08: 1,
+			PSTV09: "32",
+			PSTV10: "3273",
+			PSTV11: faskes2.NamaFaskes, // "Faskes Kedua"
+			PSTV12: 2,                  // Klinik
+			PSTV13: "32",
+			PSTV14: "3273",
+			PSTV15: 1.2500,
+			PSTV16: 2024,
+			PSTV17: "Aktif",
+			PSTV18: nil,
+		},
+		{
+			PSTV01: "0001234567897",
+			PSTV02: "FAM005",
+			PSTV03: time.Date(1972, 9, 14, 0, 0, 0, 0, time.UTC),
+			PSTV04: 1,
+			PSTV05: 1,
+			PSTV06: 2,
+			PSTV07: "II",
+			PSTV08: 1,
+			PSTV09: "35",
+			PSTV10: "3578",
+			PSTV11: faskes2.NamaFaskes, // "Faskes Kedua"
+			PSTV12: 2,                  // Klinik
+			PSTV13: "35",
+			PSTV14: "3578",
+			PSTV15: 1.2500,
+			PSTV16: 2024,
+			PSTV17: "Aktif",
+			PSTV18: nil,
+		},
+		{
+			PSTV01: "0001234567898",
+			PSTV02: "FAM005",
+			PSTV03: time.Date(1975, 6, 8, 0, 0, 0, 0, time.UTC),
+			PSTV04: 2,
+			PSTV05: 2,
+			PSTV06: 2,
+			PSTV07: "II",
+			PSTV08: 1,
+			PSTV09: "35",
+			PSTV10: "3578",
+			PSTV11: faskes2.NamaFaskes, // "Faskes Kedua"
+			PSTV12: 2,                  // Klinik
+			PSTV13: "35",
+			PSTV14: "3578",
+			PSTV15: 1.2500,
+			PSTV16: 2024,
+			PSTV17: "Aktif",
+			PSTV18: nil,
+		},
+		{
+			PSTV01: "0001234567899",
+			PSTV02: "FAM006",
+			PSTV03: time.Date(1988, 2, 28, 0, 0, 0, 0, time.UTC),
+			PSTV04: 1,
+			PSTV05: 1,
+			PSTV06: 1,
+			PSTV07: "I",
+			PSTV08: 1,
+			PSTV09: "36",
+			PSTV10: "3671",
+			PSTV11: faskes2.NamaFaskes, // "Faskes Kedua"
+			PSTV12: 2,                  // Klinik
+			PSTV13: "36",
+			PSTV14: "3671",
+			PSTV15: 1.5000,
+			PSTV16: 2024,
+			PSTV17: "Aktif",
+			PSTV18: nil,
+		},
 	}
+
+	// Gabungkan semua peserta
+	allPeserta := append(pesertaFaskes1, pesertaFaskes2...)
 
 	// Create semua peserta dalam batch
 	if err := DB.CreateInBatches(allPeserta, 10).Error; err != nil {
@@ -287,6 +321,8 @@ func seedPesertaBPJS() error {
 	}
 
 	log.Printf("✅ Seeded %d PesertaBPJS records", len(allPeserta))
+	log.Printf("   - %d peserta for %s", len(pesertaFaskes1), faskes1.NamaFaskes)
+	log.Printf("   - %d peserta for %s", len(pesertaFaskes2), faskes2.NamaFaskes)
 	return nil
 }
 

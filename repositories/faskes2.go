@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/models"
 	"gorm.io/gorm"
@@ -42,4 +43,39 @@ func (r *faskes2Repository) GetAllDiagnosisCodes(ctx context.Context) ([]models.
 		return nil, err
 	}
 	return diagnosisCodes, nil
+}
+
+// repositories/faskes2.go - update GetAllPesertaDependsOnFaskesHitter
+func (r *faskes2Repository) GetAllPesertaDependsOnFaskesHitter(ctx context.Context, userID string) (*[]models.PesertaBPJS, error) {
+	var peserta []models.PesertaBPJS
+
+	// Dapatkan informasi faskes dari user yang sedang login
+	var user models.User
+	err := r.db.WithContext(ctx).
+		Preload("Faskes").
+		Where("id = ?", userID).
+		First(&user).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user info: %v", err)
+	}
+
+	if user.Faskes == nil {
+		return nil, fmt.Errorf("user is not associated with any faskes")
+	}
+
+	fmt.Printf("DEBUG: User Faskes - Nama: %s, Jenis: %s\n", user.Faskes.NamaFaskes, user.Faskes.JenisFaskes)
+
+	// Filter peserta berdasarkan nama faskes yang sama dengan faskes user
+	err = r.db.WithContext(ctx).
+		Where("pstv11 = ?", user.Faskes.NamaFaskes).
+		Order("pstv01 ASC").
+		Find(&peserta).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get peserta: %v", err)
+	}
+
+	fmt.Printf("DEBUG: Found %d peserta for faskes %s\n", len(peserta), user.Faskes.NamaFaskes)
+	return &peserta, nil
 }

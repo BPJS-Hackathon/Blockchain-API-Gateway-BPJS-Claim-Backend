@@ -18,6 +18,7 @@ func NewFaskes2Handler(engine *gin.Engine, faskes2Service models.Faskes2Service,
 	gin.Use(config.AuthMiddleware(jwtManager), config.Faskes2Only())
 	gin.POST("/rekam-medis-claim", handler.CreateRekamMedisandClaim)
 	gin.GET("", handler.GetAllDiagnosisCodes)
+	gin.GET("/peserta", handler.GetAllDependedPeserta)
 }
 
 func (h *Faskes2Handler) GetAllDiagnosisCodes(c *gin.Context) {
@@ -37,6 +38,35 @@ func (h *Faskes2Handler) GetAllDiagnosisCodes(c *gin.Context) {
 		"data":    diagnosisCodes,
 		"success": true,
 		"message": "Diagnosis codes retrieved successfully",
+	})
+}
+
+func (h *Faskes2Handler) GetAllDependedPeserta(c *gin.Context) {
+	infoHitter, _ := c.Get("username")
+	userHitterID, isVool := c.Get("userID")
+	if !isVool {
+		c.JSON(500, gin.H{
+			"error":   "Unathorized",
+			"success": false,
+			"message": "Fetch Failed",
+		})
+		return
+	}
+	println("Accessed by Faskes2 user:", infoHitter)
+
+	data, err := h.faskes2Service.GetAllPesertaDependsOnFaskesHitter(c.Request.Context(), userHitterID.(string))
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error":   err.Error(),
+			"success": false,
+			"message": "Failed to retrieve peserta ",
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"data":    data,
+		"success": true,
+		"message": "Peserta retrieved successfully",
 	})
 }
 

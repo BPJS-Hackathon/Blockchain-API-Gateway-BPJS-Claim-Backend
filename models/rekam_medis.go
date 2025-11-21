@@ -28,5 +28,6 @@ type RekamMedis struct {
 	Outcome       *string       `gorm:"type:varchar(100)" json:"outcome"`
 	User          User          `gorm:"foreignKey:UserID;references:ID" json:"user"`
 	Diagnosis     DiagnosisCode `gorm:"foreignKey:DiagnosisCode;references:Code" json:"diagnosis"`
-	Claims        []Claims      `gorm:"foreignKey:RekamMedisID;references:ID" json:"claims"`
+	Claims        []Claims      `gorm:"foreignKey:RekamMedisID;references:ID" json:"claims,omitempty"`
+	PesertaBPJS   PesertaBPJS   `gorm:"foreignKey:PesertaNIK;references:PSTV01" json:"peserta_bpjs"`
 }

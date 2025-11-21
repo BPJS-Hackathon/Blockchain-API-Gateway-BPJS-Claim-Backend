@@ -21,3 +21,7 @@ func (s *faskes2Service) CreateRekamMedisandClaim(ctx context.Context, rm models
 func (s *faskes2Service) GetAllDiagnosisCodes(ctx context.Context) ([]models.DiagnosisCode, error) {
 	return s.f2rp.GetAllDiagnosisCodes(ctx)
 }
+
+func (s *faskes2Service) GetAllPesertaDependsOnFaskesHitter(ctx context.Context, id string) (*[]models.PesertaBPJS, error) {
+	return s.f2rp.GetAllPesertaDependsOnFaskesHitter(ctx, id)
+}
