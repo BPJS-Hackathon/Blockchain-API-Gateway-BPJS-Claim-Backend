@@ -10,25 +10,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Faskes2Handler struct {
-	faskes2Service models.Faskes2Service
+type Faskes1Handler struct {
+	faskes1Service models.Faskes1Service
 }
 
-func NewFaskes2Handler(engine *gin.Engine, faskes2Service models.Faskes2Service, jwtManager *utils.JWTManager) {
-	handler := &Faskes2Handler{faskes2Service: faskes2Service}
+func NewFaskes1Handler(engine *gin.Engine, faskes1Service models.Faskes1Service, jwtManager *utils.JWTManager) {
+	handler := &Faskes1Handler{faskes1Service: faskes1Service}
 	// public routes
-	gin := engine.Group("/faskes2")
-	gin.Use(config.AuthMiddleware(jwtManager), config.Faskes2Only())
-	gin.POST("/rekam-medis-claim", handler.CreateRekamMedisandClaim)
-	gin.GET("", handler.GetAllDiagnosisCodes)
-	gin.GET("/peserta", handler.GetAllDependedPeserta)
+	gin := engine.Group("/faskes1")
+	gin.Use(config.AuthMiddleware(jwtManager), config.Faskes1Only())
+	gin.POST("/rekam-medis", handler.CreateRekamMedis1)
+	gin.GET("", handler.GetAllDiagnosisCodes1)
+	gin.GET("/peserta", handler.GetAllDependedPeserta1)
 }
 
-func (h *Faskes2Handler) GetAllDiagnosisCodes(c *gin.Context) {
+func (h *Faskes1Handler) GetAllDiagnosisCodes1(c *gin.Context) {
 	infoHitter, _ := c.Get("username")
 	println("Accessed by Faskes2 user:", infoHitter)
 
-	diagnosisCodes, err := h.faskes2Service.GetAllDiagnosisCodes(c.Request.Context())
+	diagnosisCodes, err := h.faskes1Service.GetAllDiagnosisCodes1(c.Request.Context())
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error":   "internal server error",
@@ -44,7 +44,7 @@ func (h *Faskes2Handler) GetAllDiagnosisCodes(c *gin.Context) {
 	})
 }
 
-func (h *Faskes2Handler) GetAllDependedPeserta(c *gin.Context) {
+func (h *Faskes1Handler) GetAllDependedPeserta1(c *gin.Context) {
 	infoHitter, _ := c.Get("username")
 	userHitterID, isVool := c.Get("userID")
 	if !isVool {
@@ -57,7 +57,7 @@ func (h *Faskes2Handler) GetAllDependedPeserta(c *gin.Context) {
 	}
 	println("Accessed by Faskes2 user:", infoHitter)
 
-	data, err := h.faskes2Service.GetAllPesertaDependsOnFaskesHitter(c.Request.Context(), userHitterID.(string))
+	data, err := h.faskes1Service.GetAllPesertaDependsOnFaskesHitter1(c.Request.Context(), userHitterID.(string))
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error":   err.Error(),
@@ -73,7 +73,7 @@ func (h *Faskes2Handler) GetAllDependedPeserta(c *gin.Context) {
 	})
 }
 
-func (h *Faskes2Handler) CreateRekamMedisandClaim(c *gin.Context) {
+func (h *Faskes1Handler) CreateRekamMedis1(c *gin.Context) {
 	utils.PrintContextData(c)
 
 	userHitterID, isVool := c.Get("userID")
@@ -88,7 +88,6 @@ func (h *Faskes2Handler) CreateRekamMedisandClaim(c *gin.Context) {
 
 	var req struct {
 		RekamMedis models.RekamMedis `json:"rekam_medis"`
-		Claims     models.Claims     `json:"claims"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{
@@ -138,11 +137,8 @@ func (h *Faskes2Handler) CreateRekamMedisandClaim(c *gin.Context) {
 	req.RekamMedis.UserID = userHitterID.(string)
 
 	// Set claim status jika kosong
-	if req.Claims.Status == "" {
-		req.Claims.Status = models.ClaimStatusPending // atau models.ClaimStatusSubmitted
-	}
 
-	claimID, err := h.faskes2Service.CreateRekamMedisandClaim(c.Request.Context(), req.RekamMedis, req.Claims)
+	err := h.faskes1Service.CreateRekamMedis1(c.Request.Context(), req.RekamMedis)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error":   err.Error(),
@@ -152,8 +148,7 @@ func (h *Faskes2Handler) CreateRekamMedisandClaim(c *gin.Context) {
 		return
 	}
 	c.JSON(201, gin.H{
-		"claim_id": claimID,
-		"success":  true,
-		"message":  "Creation Successful",
+		"success": true,
+		"message": "Creation Successful",
 	})
 }

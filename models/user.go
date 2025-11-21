@@ -44,11 +44,15 @@ type AdminService interface {
 
 // FASKES1
 type Faskes1Repo interface {
-	CreateRekamMedis(ctx context.Context, rm RekamMedis) error
+	GetAllDiagnosisCodes1(ctx context.Context) ([]DiagnosisCode, error)
+	GetAllPesertaDependsOnFaskesHitter1(ctx context.Context, id string) (*[]PesertaBPJS, error)
+	CreateRekamMedis1(ctx context.Context, rm RekamMedis) error
 }
 
 type Faskes1Service interface {
-	CreateRekamMedis(ctx context.Context, rm RekamMedis) error
+	GetAllDiagnosisCodes1(ctx context.Context) ([]DiagnosisCode, error)
+	GetAllPesertaDependsOnFaskesHitter1(ctx context.Context, id string) (*[]PesertaBPJS, error)
+	CreateRekamMedis1(ctx context.Context, rm RekamMedis) error
 }
 
 // FASKES2

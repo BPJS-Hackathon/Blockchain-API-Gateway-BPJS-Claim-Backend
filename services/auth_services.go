@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/domain"
+	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/models"
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/utils"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -41,4 +42,9 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (str
 
 func (s *AuthService) GetAccessTokenManager() *utils.JWTManager {
 	return s.JWT
+}
+
+func (s *AuthService) Me(ctx context.Context, id string) (*models.User, error) {
+	return s.Repo.Me(ctx, id)
+
 }

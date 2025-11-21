@@ -45,7 +45,7 @@ func main() {
 	config.InitMiddleware(app)
 
 	// init handlers
-	handlers.NewAuthHandler(app, *authService)
+	handlers.NewAuthHandler(app, *authService, authService.GetAccessTokenManager())
 	handlers.NewFaskes2Handler(app, faskes2Service, authService.GetAccessTokenManager())
 	handlers.NewAdminHandler(app, adminService, authService.GetAccessTokenManager())
 
