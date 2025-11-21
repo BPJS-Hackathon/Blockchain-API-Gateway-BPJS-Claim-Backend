@@ -35,6 +35,7 @@ func main() {
 	faskes1Repo := repositories.NewFaskes1Repo(db)
 	faskes2repo := repositories.NewFaskes2Repo(db)
 	adminRep := repositories.NewAdminRepo(db)
+	claimsRepo := repositories.NewClaimsRepo(config.DB)
 
 	// init services
 	authService := services.NewAuthService(authRepo, jwtSecret)
@@ -47,6 +48,7 @@ func main() {
 	config.InitMiddleware(app)
 
 	// init handlers
+	handlers.NewBlockchainHandler(app, claimsRepo)
 	handlers.NewAuthHandler(app, *authService, authService.GetAccessTokenManager())
 	handlers.NewFaskes1Handler(app, faskes1Service, authService.GetAccessTokenManager())
 	handlers.NewFaskes2Handler(app, faskes2Service, authService.GetAccessTokenManager())

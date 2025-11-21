@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 const (
 	ClaimStatusSubmitted = "SUBMITTED" // Status awal, dilakukan bersamaan saat RS / faskes yang merawat mensubmit Rekam Medis
@@ -18,4 +21,9 @@ type Claims struct {
 	CreatedAt    time.Time  `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt    time.Time  `gorm:"autoUpdateTime" json:"updated_at"`
 	RekamMedis   RekamMedis `gorm:"foreignKey:RekamMedisID;references:ID" json:"rekam_medis"`
+}
+
+type ClaimsRepo interface {
+	UpdateClaimStatus(ctx context.Context, claimID string, status string) error
+	GetClaimByID(ctx context.Context, claimID string) (*Claims, error)
 }
