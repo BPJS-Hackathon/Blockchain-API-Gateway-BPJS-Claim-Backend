@@ -173,7 +173,7 @@ func (h *Faskes2Handler) CreateRekamMedisandClaim(c *gin.Context) {
 
 	// Set claim status jika kosong
 	if req.Claims.Status == "" {
-		req.Claims.Status = models.ClaimStatusPending // atau models.ClaimStatusSubmitted
+		req.Claims.Status = models.ClaimStatusSubmitted // atau models.ClaimStatusSubmitted
 	}
 
 	claimID, err := h.faskes2Service.CreateRekamMedisandClaim(c.Request.Context(), req.RekamMedis, req.Claims)

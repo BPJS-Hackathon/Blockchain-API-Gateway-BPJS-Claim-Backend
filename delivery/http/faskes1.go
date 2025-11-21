@@ -170,8 +170,6 @@ func (h *Faskes1Handler) CreateRekamMedis1(c *gin.Context) {
 	// Set default values
 	req.RekamMedis.UserID = userHitterID.(string)
 
-	// Set claim status jika kosong
-
 	err := h.faskes1Service.CreateRekamMedis1(c.Request.Context(), req.RekamMedis)
 	if err != nil {
 		c.JSON(500, gin.H{
