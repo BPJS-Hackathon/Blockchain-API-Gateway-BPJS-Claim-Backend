@@ -41,9 +41,5 @@ type PesertaBPJS struct {
 	PSTV17 string `gorm:"column:pstv17;type:varchar(16)" json:"status_kepesertaan"`
 	// PSTV18 - Tahun meninggal (nullable)
 	PSTV18    *int   `gorm:"column:pstv18;type:integer" json:"tahun_meninggal"`
-	CreatedBy string `gorm:"column:created_by;type:uuid" json:"created_by"`
 }
 
-func (PesertaBPJS) TableName() string {
-	return "peserta_bpjs"
-}

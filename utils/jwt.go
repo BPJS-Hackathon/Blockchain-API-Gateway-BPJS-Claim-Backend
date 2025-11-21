@@ -1,75 +1,55 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
-	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/models"
-	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtSecret []byte
+type JWTManager struct {
+	secretKey     []byte
+	tokenDuration time.Duration
+}
 
-func GenerateToken(userID, role string) (string, error) {
+func NewJWTManager(secretKey string, duration time.Duration) *JWTManager {
+	return &JWTManager{
+		secretKey:     []byte(secretKey),
+		tokenDuration: duration,
+	}
+}
+
+func (j *JWTManager) GenerateToken(userUUID, role, name string) (string, error) {
 	claims := jwt.MapClaims{
-		"sub":  userID,
+		"sub":  userUUID,
 		"role": role,
-		"exp":  time.Now().Add(24 * time.Hour).Unix(),
+		"exp":  time.Now().Add(j.tokenDuration).Unix(),
+		"iat":  time.Now().Unix(),
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	return token.SignedString(j.secretKey)
 }
 
-func ParseToken(tokenStr string) (*jwt.Token, error) {
-	return jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
-		if t.Method != jwt.SigningMethodHS256 {
-			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+// VerifyToken memverifikasi token dan mengembalikan UUID + Role
+func (j *JWTManager) VerifyToken(tokenStr string) (string, string, error) {
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return jwtSecret, nil
+		return j.secretKey, nil
 	})
-}
 
-// Middleware to require auth and set user_id and role in Locals
-func RequireAuth() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		auth := c.Get("Authorization")
-		if auth == "" {
-			return c.Status(401).JSON(fiber.Map{"error": "missing auth"})
-		}
-		// expect "Bearer <token>"
-		var tokenStr string
-		if _, err := fmt.Sscanf(auth, "Bearer %s", &tokenStr); err != nil {
-			return c.Status(401).JSON(fiber.Map{"error": "invalid auth header"})
-		}
-		tok, err := ParseToken(tokenStr)
-		if err != nil || !tok.Valid {
-			return c.Status(401).JSON(fiber.Map{"error": "invalid token"})
-		}
-		if claims, ok := tok.Claims.(jwt.MapClaims); ok {
-			if sub, ok := claims["sub"].(string); ok {
-				c.Locals("user_id", sub)
-			}
-			if role, ok := claims["role"].(string); ok {
-				c.Locals("role", role)
-			}
-		}
-		return c.Next()
+	if err != nil {
+		return "", "", err
 	}
-}
 
-// Middleware admin role require
-func AdminOnly() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		role := c.Locals("role")
-		if role != models.RoleAdmin {
-			return c.Status(403).JSON(fiber.Map{"error": "access denied"})
-		}
-
-		return c.Next()
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		userUUID, _ := claims["sub"].(string)
+		role, _ := claims["role"].(string)
+		return userUUID, role, nil
 	}
-}
 
-func SetSecret(secret string) {
-	jwtSecret = []byte(secret)
+	return "", "", errors.New("invalid token claims")
 }

@@ -1,0 +1,52 @@
+[
+  {
+    "code": "A00",
+    "keterangan": "Kolera",
+    "harga": 500000
+  },
+  {
+    "code": "A01",
+    "keterangan": "Demam Tifoid dan Paratifoid",
+    "harga": 750000
+  },
+  {
+    "code": "A02",
+    "keterangan": "Infeksi Salmonella Lainnya",
+    "harga": 600000
+  },
+  {
+    "code": "A03",
+    "keterangan": "Shigellosis",
+    "harga": 550000
+  },
+  {
+    "code": "A04",
+    "keterangan": "Infeksi Bakterial Usus Lainnya",
+    "harga": 450000
+  },
+  {
+    "code": "A05",
+    "keterangan": "Keracunan Makanan Bakterial Lainnya",
+    "harga": 350000
+  },
+  {
+    "code": "A06",
+    "keterangan": "Amebiasis",
+    "harga": 800000
+  },
+  {
+    "code": "A07",
+    "keterangan": "Penyakit Protozoa Usus Lainnya",
+    "harga": 700000
+  },
+  {
+    "code": "A08",
+    "keterangan": "Infeksi Usus Virus dan Lainnya",
+    "harga": 400000
+  },
+  {
+    "code": "A09",
+    "keterangan": "Gastroenteritis dan Kolitis Tidak Spesifik",
+    "harga": 300000
+  }
+]

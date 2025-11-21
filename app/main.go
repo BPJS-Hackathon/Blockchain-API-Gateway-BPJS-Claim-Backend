@@ -5,36 +5,56 @@ import (
 	"os"
 
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/config"
-	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/delivery/http"
+	handlers "github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/delivery/http"
+	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/repositories"
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/services"
-	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/utils"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	_ = godotenv.Load()
-
-	// set jwt secret from env
-	s := os.Getenv("JWT_SECRET")
-	if s != "" {
-		utils.SetSecret(s)
+	// Load .env
+	if err := godotenv.Load(); err != nil {
+		log.Println("⚠️  .env file not found, using system environment variables")
 	}
 
-	// connect DB
-	config.ConnectDB()
+	// Boot DB
+	db, err := config.BootDB()
+	if err != nil {
+		log.Fatal("❌ Failed to connect to database: ", err)
+	}
 
-	// blockchain client stub for dev
-	bc := services.NewStubBlockchainClient()
+	// JWT secret
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Fatal("❌ JWT_SECRET not found in .env")
+	}
 
-	app := fiber.New()
+	// init repo
+	authRepo := repositories.NewAuthRepo(db)
+	faskes2repo := repositories.NewFaskes2Repo(db)
 
-	// register routes (this will also start background listener)
-	http.RegisterRoutes(app, bc)
+	// init services
+	authService := services.NewAuthService(authRepo, jwtSecret)
+	faskes2Service := services.NewFaskes2Service(faskes2repo)
 
-	port := os.Getenv("PORT")
+	// init gin
+	app := gin.Default()
+	config.InitMiddleware(app)
+
+	// init handlers
+	handlers.NewAuthHandler(app, *authService)
+	handlers.NewFaskes2Handler(app, faskes2Service, authService.GetAccessTokenManager())
+
+	// Start server
+	port := os.Getenv("APP_PORT")
 	if port == "" {
 		port = "8080"
 	}
-	log.Fatal(app.Listen(":" + port))
+	srvAddr := ":" + port
+
+	log.Printf("🚀 Server running at http://localhost%s", srvAddr)
+	if err := app.Run(srvAddr); err != nil {
+		log.Fatal("❌ Failed to start server: ", err)
+	}
 }

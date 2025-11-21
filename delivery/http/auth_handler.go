@@ -1,68 +1,46 @@
-package http
+package handlers
 
 import (
-	"fmt"
-
-	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/models"
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/services"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler struct {
-	authService *services.AuthService
+	authService services.AuthService
 }
 
-func NewAuthHandler(s *services.AuthService) *AuthHandler {
-	return &AuthHandler{authService: s}
+func NewAuthHandler(engine *gin.Engine, authService services.AuthService) {
+	handler := &AuthHandler{authService: authService}
+	// public routes
+	gin := engine.Group("/auth")
+	gin.POST("/login", handler.Login)
 }
 
-func (h *AuthHandler) Register(c *fiber.Ctx) error {
-	var req struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-		Role     string `json:"role"`
-	}
-	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "invalid request",
-		})
-	}
-
-	req.Role = models.RoleFaskes // default role
-	err := h.authService.Register(c.Context(), req.Username, req.Password, req.Role)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-
-	return c.JSON(fiber.Map{
-		"success": true,
-	})
-}
-
-func (h *AuthHandler) Login(c *fiber.Ctx) error {
+func (h *AuthHandler) Login(c *gin.Context) {
 	var req struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
-	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "invalid request",
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{
+			"error":   "invalid request",
+			"success": false,
+			"message": "Login Failed",
 		})
+		return
 	}
-
-	fmt.Println(req)
-
-	token, err := h.authService.Login(c.Context(), req.Username, req.Password)
+	token, err := h.authService.Login(c.Request.Context(), req.Username, req.Password)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": err.Error(),
+		c.JSON(401, gin.H{
+			"error":   "unauthorized",
+			"success": false,
+			"message": "Login Failed",
 		})
+		return
 	}
-
-	return c.JSON(fiber.Map{
-		"success": true,
+	c.JSON(200, gin.H{
 		"token":   token,
+		"success": true,
+		"message": "Login Successful",
 	})
 }

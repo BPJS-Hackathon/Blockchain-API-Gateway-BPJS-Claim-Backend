@@ -1,6 +1,10 @@
 package domain
 
-import "context"
+import (
+	"context"
+
+	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/utils"
+)
 
 type User struct {
 	ID           string
@@ -11,10 +15,9 @@ type User struct {
 
 type AuthRepository interface {
 	FindByUsername(ctx context.Context, username string) (*User, error)
-	Create(user *User) error
 }
 
 type AuthService interface {
-	Register(username, password, role string) error
+	GetAccessTokenManager() *utils.JWTManager
 	Login(username, password string) (string, error)
 }
