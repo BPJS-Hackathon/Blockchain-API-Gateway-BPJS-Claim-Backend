@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"slices"
 
 	"github.com/BPJS-Hackathon/Blockchain-API-Gateway-BPJS-Claim-Backend/models"
 	"github.com/gin-gonic/gin"
@@ -27,22 +28,21 @@ func NewBlockchainHandler(engine *gin.Engine, claimsRepo models.ClaimsRepo) {
 
 // Custom CORS middleware untuk blockchain node
 func blockchainCORS() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// Allow specific blockchain node origins
-		allowedOrigins := []string{
-			"https://blockchain-bpjs.com",
-			"http://localhost:3000", // untuk development
-			"http://127.0.0.1:3000",
-		}
+	// Define allowed origins
+	allowedOrigins := []string{
+		"https://blockchain-bpjs.com",
+		"http://localhost:3000", // untuk development
+		"http://127.0.0.1:3000",
+		"https://bpjs-blockchain-node.com",
+		"http://localhost:8545", // untuk local blockchain node
+	}
 
+	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
 
-		// Check if origin is allowed
-		for _, allowedOrigin := range allowedOrigins {
-			if origin == allowedOrigin {
-				c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-				break
-			}
+		// Simplified origin check using slices.Contains
+		if slices.Contains(allowedOrigins, origin) {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
 		}
 
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
