@@ -22,6 +22,40 @@ func NewFaskes1Handler(engine *gin.Engine, faskes1Service models.Faskes1Service,
 	gin.POST("/rekam-medis", handler.CreateRekamMedis1)
 	gin.GET("", handler.GetAllDiagnosisCodes1)
 	gin.GET("/peserta", handler.GetAllDependedPeserta1)
+	gin.GET("/rekam-medis", handler.GetAllMySubmittedRM1)
+}
+
+// handlers/faskes1.go
+func (h *Faskes1Handler) GetAllMySubmittedRM1(c *gin.Context) {
+	utils.PrintContextData(c)
+
+	userHitterID, isVool := c.Get("userID")
+	if !isVool {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   "Unauthorized",
+			"success": false,
+			"message": "User ID not found in context",
+		})
+		return
+	}
+
+	// Panggil service untuk mendapatkan rekam medis
+	rekamMedis, err := h.faskes1Service.GetAllMySubmittedRM1(c.Request.Context(), userHitterID.(string))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   err.Error(),
+			"success": false,
+			"message": "Failed to retrieve rekam medis",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":    rekamMedis,
+		"success": true,
+		"message": "Rekam medis retrieved successfully",
+		"count":   len(*rekamMedis),
+	})
 }
 
 func (h *Faskes1Handler) GetAllDiagnosisCodes1(c *gin.Context) {

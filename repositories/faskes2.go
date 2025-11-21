@@ -79,3 +79,24 @@ func (r *faskes2Repository) GetAllPesertaDependsOnFaskesHitter(ctx context.Conte
 	fmt.Printf("DEBUG: Found %d peserta for faskes %s\n", len(peserta), user.Faskes.NamaFaskes)
 	return &peserta, nil
 }
+
+func (r *faskes2Repository) GetAllMySubmittedRMandClaim(ctx context.Context, userID string) (*[]models.RekamMedis, error) {
+	var rekamMedis []models.RekamMedis
+
+	err := r.db.WithContext(ctx).
+		Where("user_id = ?", userID).
+		Preload("User").
+		Preload("User.Faskes").
+		Preload("Diagnosis").
+		Preload("PesertaBPJS").
+		Preload("Claims").
+		Order("admission_date DESC").
+		Find(&rekamMedis).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get rekam medis and claims: %v", err)
+	}
+
+	fmt.Printf("DEBUG: Found %d rekam medis with claims for user %s\n", len(rekamMedis), userID)
+	return &rekamMedis, nil
+}

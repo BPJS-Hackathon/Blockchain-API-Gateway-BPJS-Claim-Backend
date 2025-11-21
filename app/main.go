@@ -32,11 +32,13 @@ func main() {
 
 	// init repo
 	authRepo := repositories.NewAuthRepo(db)
+	faskes1Repo := repositories.NewFaskes1Repo(db)
 	faskes2repo := repositories.NewFaskes2Repo(db)
 	adminRep := repositories.NewAdminRepo(db)
 
 	// init services
 	authService := services.NewAuthService(authRepo, jwtSecret)
+	faskes1Service := services.NewFaskes1Service(faskes1Repo)
 	faskes2Service := services.NewFaskes2Service(faskes2repo)
 	adminService := services.NewAdminService(adminRep)
 
@@ -46,6 +48,7 @@ func main() {
 
 	// init handlers
 	handlers.NewAuthHandler(app, *authService, authService.GetAccessTokenManager())
+	handlers.NewFaskes1Handler(app, faskes1Service, authService.GetAccessTokenManager())
 	handlers.NewFaskes2Handler(app, faskes2Service, authService.GetAccessTokenManager())
 	handlers.NewAdminHandler(app, adminService, authService.GetAccessTokenManager())
 

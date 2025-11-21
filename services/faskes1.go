@@ -25,3 +25,7 @@ func (s *faskes1Service) GetAllDiagnosisCodes1(ctx context.Context) ([]models.Di
 func (s *faskes1Service) GetAllPesertaDependsOnFaskesHitter1(ctx context.Context, id string) (*[]models.PesertaBPJS, error) {
 	return s.f1rp.GetAllPesertaDependsOnFaskesHitter1(ctx, id)
 }
+
+func (s *faskes1Service) GetAllMySubmittedRM1(ctx context.Context, id string) (*[]models.RekamMedis, error) {
+	return s.f1rp.GetAllMySubmittedRM1(ctx, id)
+}

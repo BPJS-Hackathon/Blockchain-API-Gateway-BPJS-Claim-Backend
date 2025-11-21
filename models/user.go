@@ -44,12 +44,14 @@ type AdminService interface {
 
 // FASKES1
 type Faskes1Repo interface {
+	GetAllMySubmittedRM1(ctx context.Context, id string) (*[]RekamMedis, error)
 	GetAllDiagnosisCodes1(ctx context.Context) ([]DiagnosisCode, error)
 	GetAllPesertaDependsOnFaskesHitter1(ctx context.Context, id string) (*[]PesertaBPJS, error)
 	CreateRekamMedis1(ctx context.Context, rm RekamMedis) error
 }
 
 type Faskes1Service interface {
+	GetAllMySubmittedRM1(ctx context.Context, id string) (*[]RekamMedis, error)
 	GetAllDiagnosisCodes1(ctx context.Context) ([]DiagnosisCode, error)
 	GetAllPesertaDependsOnFaskesHitter1(ctx context.Context, id string) (*[]PesertaBPJS, error)
 	CreateRekamMedis1(ctx context.Context, rm RekamMedis) error
@@ -57,12 +59,14 @@ type Faskes1Service interface {
 
 // FASKES2
 type Faskes2Repo interface {
+	GetAllMySubmittedRMandClaim(ctx context.Context, id string) (*[]RekamMedis, error)
 	GetAllDiagnosisCodes(ctx context.Context) ([]DiagnosisCode, error)
 	CreateRekamMedisandClaim(ctx context.Context, rm RekamMedis, cl Claims) (string, error)
 	GetAllPesertaDependsOnFaskesHitter(ctx context.Context, id string) (*[]PesertaBPJS, error)
 }
 
 type Faskes2Service interface {
+	GetAllMySubmittedRMandClaim(ctx context.Context, id string) (*[]RekamMedis, error)
 	GetAllDiagnosisCodes(ctx context.Context) ([]DiagnosisCode, error)
 	CreateRekamMedisandClaim(ctx context.Context, rm RekamMedis, cl Claims) (string, error)
 	GetAllPesertaDependsOnFaskesHitter(ctx context.Context, id string) (*[]PesertaBPJS, error)
