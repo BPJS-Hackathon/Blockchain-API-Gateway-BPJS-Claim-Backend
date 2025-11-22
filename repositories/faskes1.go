@@ -36,19 +36,26 @@ func (r *faskes1Repository) GetAllMySubmittedRM1(ctx context.Context, userID str
 	return &rekamMedis, nil
 }
 
-func (r *faskes1Repository) CreateRekamMedis1(ctx context.Context, rm models.RekamMedis) error {
+func (r *faskes1Repository) CreateRekamMedis1(ctx context.Context, rm models.RekamMedis) (string, error) {
 	tx := r.db.WithContext(ctx).Begin()
 	if err := tx.Create(&rm).Error; err != nil {
 		tx.Rollback()
-		return err
+		return "", err
+	}
+
+	// fetch the created id (rm.ID should be populated by GORM)
+	var createdRM models.RekamMedis
+	if err := tx.Where("id = ?", rm.ID).First(&createdRM).Error; err != nil {
+		tx.Rollback()
+		return "", err
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		return err
+		return "", err
 	}
 
-	// return created claim id and nil
-	return nil
+	// return created record id and nil
+	return rm.ID, nil
 }
 
 func (r *faskes1Repository) GetAllDiagnosisCodes1(ctx context.Context) ([]models.DiagnosisCode, error) {

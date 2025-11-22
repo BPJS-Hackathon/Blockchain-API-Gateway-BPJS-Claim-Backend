@@ -170,7 +170,7 @@ func (h *Faskes1Handler) CreateRekamMedis1(c *gin.Context) {
 	// Set default values
 	req.RekamMedis.UserID = userHitterID.(string)
 
-	err := h.faskes1Service.CreateRekamMedis1(c.Request.Context(), req.RekamMedis)
+	data, err := h.faskes1Service.CreateRekamMedis1(c.Request.Context(), req.RekamMedis)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error":   err.Error(),
@@ -180,7 +180,8 @@ func (h *Faskes1Handler) CreateRekamMedis1(c *gin.Context) {
 		return
 	}
 	c.JSON(201, gin.H{
-		"success": true,
-		"message": "Creation Successful",
+		"success":        true,
+		"message":        "Creation Successful",
+		"rekam_medis_id": data,
 	})
 }

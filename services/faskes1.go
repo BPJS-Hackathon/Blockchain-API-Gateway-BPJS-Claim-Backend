@@ -14,8 +14,12 @@ func NewFaskes1Service(f models.Faskes1Repo) models.Faskes1Service {
 	return &faskes1Service{f1rp: f}
 }
 
-func (s *faskes1Service) CreateRekamMedis1(ctx context.Context, rm models.RekamMedis) error {
-	return s.f1rp.CreateRekamMedis1(ctx, rm)
+func (s *faskes1Service) CreateRekamMedis1(ctx context.Context, rm models.RekamMedis) (string, error) {
+	data, err := s.f1rp.CreateRekamMedis1(ctx, rm)
+	if err != nil {
+		return "", err
+	}
+	return data, nil
 }
 
 func (s *faskes1Service) GetAllDiagnosisCodes1(ctx context.Context) ([]models.DiagnosisCode, error) {

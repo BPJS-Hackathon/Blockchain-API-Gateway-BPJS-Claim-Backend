@@ -47,14 +47,14 @@ type Faskes1Repo interface {
 	GetAllMySubmittedRM1(ctx context.Context, id string) (*[]RekamMedis, error)
 	GetAllDiagnosisCodes1(ctx context.Context) ([]DiagnosisCode, error)
 	GetAllPesertaDependsOnFaskesHitter1(ctx context.Context, id string) (*[]PesertaBPJS, error)
-	CreateRekamMedis1(ctx context.Context, rm RekamMedis) error
+	CreateRekamMedis1(ctx context.Context, rm RekamMedis) (string, error)
 }
 
 type Faskes1Service interface {
 	GetAllMySubmittedRM1(ctx context.Context, id string) (*[]RekamMedis, error)
 	GetAllDiagnosisCodes1(ctx context.Context) ([]DiagnosisCode, error)
 	GetAllPesertaDependsOnFaskesHitter1(ctx context.Context, id string) (*[]PesertaBPJS, error)
-	CreateRekamMedis1(ctx context.Context, rm RekamMedis) error
+	CreateRekamMedis1(ctx context.Context, rm RekamMedis) (string, error)
 }
 
 // FASKES2
